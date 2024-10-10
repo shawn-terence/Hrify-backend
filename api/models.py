@@ -71,3 +71,5 @@ class Leave(models.Model):
     status = models.CharField(max_length=20, default='pending', choices=LEAVE_STATUS)
     handled_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='approved_leaves')
     date_requested = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return f"Leave request from {self.employee} from {self.date_from} to {self.date_to}"
