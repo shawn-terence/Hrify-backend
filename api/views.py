@@ -175,3 +175,16 @@ class UserListView(APIView):
         
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+class EmployeeReportView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReportSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Report.objects.filter(employee_id=user.id)
+class AdminReportView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReportSerializer
+
+    def get_queryset(self):
+        return Report.objects.all()

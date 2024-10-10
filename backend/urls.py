@@ -26,4 +26,7 @@ urlpatterns = [
     path('user/<int:pk>/details/', UserDetailsView.as_view(), name='user-details'),
     path('user/update/',UpdateProfile.as_view(),name='update'),
     path('user/password/',UpdatePasswordView.as_view(),name='password-update'),
+    path('report/<int:user_id>/',MakeReportView.as_view(),name="make-report"),
+    path('report/',EmployeeReportView.as_view(),name="report"),
+    path('report/adm/',AdminReportView.as_view(),name='reportlist'),
 ]
