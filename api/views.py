@@ -163,3 +163,15 @@ class MakeReportView(CreateAPIView, UserRetrievalMixin, IsAdminMixin):
         serializer.save(employee=user)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+class UserListView(APIView):
+    def get(self, request):
+        email_query = request.query_params.get('email', None)
+        
+        # If an email query is provided, filter users by email
+        if email_query:
+            users = User.objects.filter(email__icontains=email_query)
+        else:
+            users = User.objects.all()
+        
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
