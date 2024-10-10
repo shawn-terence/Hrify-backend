@@ -29,4 +29,8 @@ urlpatterns = [
     path('report/<int:user_id>/',MakeReportView.as_view(),name="make-report"),
     path('report/',EmployeeReportView.as_view(),name="report"),
     path('report/adm/',AdminReportView.as_view(),name='reportlist'),
+    path('report/categories/', ReportCategoryListView.as_view(), name="report-categories"),
+    path('report/update/<int:id>/',UpdateReportView.as_view(),name='update-report'),
+    path('report/delete/<int:id>/',DeleteReportView.as_view(),name='delete-report'),
+    path('leave/request/',RequestLeaveView.as_view(),name='leave-request'),
 ]

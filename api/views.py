@@ -163,6 +163,9 @@ class MakeReportView(CreateAPIView, UserRetrievalMixin, IsAdminMixin):
         serializer.save(employee=user)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
 class UserListView(APIView):
     def get(self, request):
         email_query = request.query_params.get('email', None)
@@ -175,6 +178,31 @@ class UserListView(APIView):
         
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class ReportCategoryListView(APIView):
+    def get(self, request):
+        # Get distinct categories from the Report model
+        categories = Report.objects.values_list('category', flat=True).distinct()
+        
+        # Return the categories as a JSON response
+        return Response(categories, status=status.HTTP_200_OK)
+
+class UpdateReportView(UpdateAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = ReportSerializer
+    lookup_field='id'
+    def get_queryset(self):
+        return Report.objects.all()
+
+
+class DeleteReportView(DestroyAPIView):
+    permission_classes = [IsAdminUser]
+    lookup_field='id'
+    def get_queryset(self):
+        return Report.objects.all()
+
 class EmployeeReportView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ReportSerializer
@@ -182,9 +210,26 @@ class EmployeeReportView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return Report.objects.filter(employee_id=user.id)
+
 class AdminReportView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ReportSerializer
 
     def get_queryset(self):
         return Report.objects.all()
+
+class RequstLeaveView(ListCreateAPIView,IsAdminMixin):
+    permission_classes=[IsAuthenticated]
+    serializer_class=LeaveSerializer
+
+    def get_queryset(self,request):
+        user=request.user
+        if self.is_admin(user):
+            return Leave.objects.all()
+        return Leave.objects.filter(employee=user)
+
+    def perform_create(self, serializer):
+        serializer.save(employee=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
