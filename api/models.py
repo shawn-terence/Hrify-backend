@@ -57,3 +57,17 @@ class Report(models.Model):
 
     def __str__(self):
         return f"{self.employee} {self.report} {self.date} {self.category}"
+
+class Leave(models.Model):
+    LEAVE_STATUS = (
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    )
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leaves')
+    date_from = models.DateField()
+    date_to = models.DateField()
+    reason = models.CharField(max_length=300)
+    status = models.CharField(max_length=20, default='pending', choices=LEAVE_STATUS)
+    handled_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='approved_leaves')
+    date_requested = models.DateTimeField(default=timezone.now)
