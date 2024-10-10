@@ -9,7 +9,14 @@ from django.contrib.auth import authenticate, login
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated,AllowAny
 # Create your views here.
+class UserRetrievalMixin:
+    def get_user(self, user_id):
+        return get_object_or_404(User, id=user_id)
 
+# Mixin for admin check
+class IsAdminMixin:
+    def is_admin(self, user):
+        return user.role == 'admin'
 class CreateUserView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -50,7 +57,7 @@ class Logout(APIView):
         return Response({'message':'logged out successfully'},status=status.HTTP_200_OK)
 
 
-class UserDetailsView(RetrieveAPIView):
+class UserDetailsView(RetrieveAPIView,IsAdminMixin):
     serializer_class=UserSerializer
     lookup_field='pk'
     permission_classes=[IsAuthenticated]
@@ -58,11 +65,11 @@ class UserDetailsView(RetrieveAPIView):
         user=self.request.user
         user_id=self.kwargs.get('pk')
 
-        if user.role=='admin':
+        if self.is_admin(user):
             return User.objects.all()
         return User.objects.filter(id=user_id)
 
-class UpdateProfile(APIView):
+class UpdateProfile(APIView,IsAdminMixin):
     permission_classes=[IsAuthenticated]
     serializer_class=UserSerializer
     def patch(self, request,):
@@ -77,7 +84,7 @@ class UpdateProfile(APIView):
         department=request.data.get('department')
 
 
-        if user.role == "admin":
+        if self.is_admin(user):
             if job_role is not None:
                 user.job_role = job_role
             if salary is not None:
@@ -86,6 +93,8 @@ class UpdateProfile(APIView):
                 user.department = department
         else:
             (Response({"Error:You are unauthorised"},status=status.HTTP_401_UNAUTHORIZED))
+
+
         if last_name is not None:
             user.last_name = last_name
         if first_name is not None:
@@ -132,3 +141,25 @@ class UpdatePasswordView(APIView):
             status=status.HTTP_200_OK
         )   
 
+class MakeReportView(CreateAPIView, UserRetrievalMixin, IsAdminMixin):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReportSerializer
+
+    def create(self, request, *args, **kwargs):
+        admin = request.user
+        
+        if not self.is_admin(admin):
+            return Response({'message': 'unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_id = self.kwargs.get('user_id')
+
+        user = self.get_user(user_id)
+
+        data = request.data.copy()
+        data['employee'] = user.id
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(employee=user)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

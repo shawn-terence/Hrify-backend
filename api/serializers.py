@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer,SerializerModelField
+from rest_framework.serializers import ModelSerializer,SerializerMethodField
 from .models import *
 
 class UserSerializer(ModelSerializer):
@@ -11,7 +11,7 @@ class UserSerializer(ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 class ReportSerializer(ModelSerializer):
-    employee_name=SerializerModelField()
+    employee_name=SerializerMethodField()
     class Meta:
         model=Report
         fields=[
