@@ -25,7 +25,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, first_name, last_name, role, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
-    profile_picture=CloudinaryField("image")
+    profile_picture=CloudinaryField("image",blank=True)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
