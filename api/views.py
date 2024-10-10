@@ -61,3 +61,44 @@ class UserDetailsView(RetrieveAPIView):
         if user.role=='admin':
             return User.objects.all()
         return User.objects.filter(id=user_id)
+
+class UpdateProfile(APIView):
+    permission_classes=[IsAuthenticated]
+    serializer_class=UserSerializer
+    def patch(self, request,):
+        user = self.request.user
+
+        last_name = request.data.get('last_name')
+        first_name = request.data.get('first_name')
+        email = request.data.get('email')
+        job_role = request.data.get('job_role')
+        phone_number = request.data.get('phone_number')
+        salary = request.data.get('salary')
+        department=request.data.get('department')
+
+
+        if user.role == "admin":
+            if job_role is not None:
+                user.job_role = job_role
+            if salary is not None:
+                user.salary = salary
+            if department is not None:
+                user.department = department
+        else:
+            (Response({"Error:You are unauthorised"},status=status.HTTP_401_UNAUTHORIZED))
+        if last_name is not None:
+            user.last_name = last_name
+        if first_name is not None:
+            user.first_name = first_name
+        if email is not None:
+            user.email = email
+        if phone_number is not None:
+            user.phone_number = phone_number
+
+        # Save the updated user
+        user.save()
+
+        # Return a success response
+        return Response({
+            "message": "Profile updated successfully",
+        }, status=status.HTTP_200_OK)  
