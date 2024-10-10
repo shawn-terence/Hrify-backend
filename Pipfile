@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+asgiref = "*"
+Django = "*"
+django-cors-headers = "*"
+djangorestframework = "*"
+pytz = "*"
+sqlparse = "*"
+psycopg2-binary = "*"
+python-dotenv = "*"
+black = "*"
+dj-database-url = "*"
+gunicorn = "*"
+pandas = "*"
+openpyxl = "*"
+djangorestframework-simplejwt = "*"
+daphne = "*"
+channels = "*"
+django-channels-jwt = "*"
+django-channels-jwt-auth-middleware = "*"
+pusher = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12.0"
