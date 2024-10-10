@@ -48,3 +48,16 @@ class Logout(APIView):
         token=Token.objects.get(user=request.user)
         token.delete()
         return Response({'message':'logged out successfully'},status=status.HTTP_200_OK)
+
+
+class UserDetailsView(RetrieveAPIView):
+    serializer_class=UserSerializer
+    lookup_field='pk'
+    permission_classes=[IsAuthenticated]
+    def get_queryset(self):
+        user=self.request.user
+        user_id=self.kwargs.get('pk')
+
+        if user.role=='admin':
+            return User.objects.all()
+        return User.objects.filter(id=user_id)

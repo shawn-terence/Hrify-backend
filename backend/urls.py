@@ -23,4 +23,5 @@ urlpatterns = [
     path("user/create/",CreateUserView.as_view(),name="register-users"),
     path("user/login/",Login.as_view(),name="login-users"),
     path("user/logout/",Logout.as_view(),name="logout-users"),
+    path('user/<int:pk>/details/', UserDetailsView.as_view(), name='user-details'),
 ]
