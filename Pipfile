@@ -23,6 +23,8 @@ channels = "*"
 django-channels-jwt = "*"
 django-channels-jwt-auth-middleware = "*"
 pusher = "*"
+cloudinary = "*"
+pillow="*"
 
 [dev-packages]
 
