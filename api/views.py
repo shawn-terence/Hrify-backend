@@ -90,8 +90,6 @@ class UpdateProfile(APIView):
             user.last_name = last_name
         if first_name is not None:
             user.first_name = first_name
-        if email is not None:
-            user.email = email
         if phone_number is not None:
             user.phone_number = phone_number
 
@@ -102,3 +100,34 @@ class UpdateProfile(APIView):
         return Response({
             "message": "Profile updated successfully",
         }, status=status.HTTP_200_OK)  
+
+class UpdatePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+
+        # Check if the old password is correct
+        if not user.check_password(old_password):
+            return Response(
+                {"error": "Old password is incorrect."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate new password length (the confirmation will be done in frontend)
+        if len(new_password) < 8:
+            return Response(
+                {"error": "New password must be at least 8 characters long."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Set and save the new password
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "Password updated successfully."},
+            status=status.HTTP_200_OK
+        )   
