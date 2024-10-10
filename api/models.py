@@ -47,3 +47,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
+
+
+class Report(models.Model):
+    employee= models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField(default=date.today)
+    category=models.CharField(max_length=20)
+    report=models.CharField(max_length=300)
+
+    def __str__(self):
+        return f"{self.employee} {self.report} {self.date} {self.category}"

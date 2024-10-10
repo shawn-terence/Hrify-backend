@@ -131,3 +131,4 @@ class UpdatePasswordView(APIView):
             {"message": "Password updated successfully."},
             status=status.HTTP_200_OK
         )   
+
