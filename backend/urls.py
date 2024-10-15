@@ -33,4 +33,7 @@ urlpatterns = [
     path('report/update/<int:id>/',UpdateReportView.as_view(),name='update-report'),
     path('report/delete/<int:id>/',DeleteReportView.as_view(),name='delete-report'),
     path('leave/request/',RequestLeaveView.as_view(),name='leave-request'),
+    path('leave/action/<int:id>/',RequestActionView.as_view(),name='leave-action'),
+    path('leave/delete/<int:pk>/', DeleteLeaveRequestView.as_view(), name='delete-leave-request'),
+    path('leaves/', LeaveListView.as_view(), name='leave-list'),
 ]

@@ -218,7 +218,7 @@ class AdminReportView(ListAPIView):
     def get_queryset(self):
         return Report.objects.all()
 
-class RequstLeaveView(ListCreateAPIView,IsAdminMixin):
+class RequestLeaveView(ListCreateAPIView,IsAdminMixin):
     permission_classes=[IsAuthenticated]
     serializer_class=LeaveSerializer
 
@@ -233,3 +233,54 @@ class RequstLeaveView(ListCreateAPIView,IsAdminMixin):
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+class RequestActionView(UpdateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = LeaveSerializer
+    lookup_field = 'id'
+    
+    def get_queryset(self):
+        return Leave.objects.all()
+
+    def patch(self, request, *args, **kwargs):
+        leave = self.get_object()
+        serializer = self.get_serializer(leave, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            status_value = serializer.validated_data.get('status')
+            if status_value and status_value not in dict(Leave.LEAVE_STATUS):
+                return Response({"status": ["Invalid status value."]}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Set handled_by field based on the status
+            if status_value == "approved":
+                leave.handled_by = self.request.user
+            elif status_value == "rejected":
+                leave.handled_by = self.request.user
+            
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class DeleteLeaveRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def delete(self, request, pk, *args, **kwargs):
+        try:
+            leave_request = Leave.objects.get(pk=pk, employee=request.user)
+        except Leave.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if leave_request.status != "pending":
+            return Response({"detail": "Only pending requests can be deleted."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        leave_request.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class LeaveListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LeaveSerializer
+
+    def get_queryset(self):
+        # Return all leave requests
+        return Leave.objects.all()
