@@ -350,3 +350,51 @@ class EmployeeAttendanceView(ListAPIView):
         employee_id = self.kwargs.get('employee_id')
         
         return Attendance.objects.filter(employee_id=employee_id).order_by('-date')
+
+
+
+class CreateProjectView(generics.CreateAPIView):
+    serializer_class = ProjectSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        project = serializer.save()
+        response_data = ProjectSerializer(project).data
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+class GetAllProjectsView(generics.ListAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+
+class UpdateProjectView(UpdateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
+
+    def update(self, request, *args, **kwargs):
+
+        project = self.get_object()
+        
+
+        if project.manager != request.user:
+            return Response({"message":"Only managers can update the status"},status=status.HTTP_403_FORBIDDEN)
+        
+
+        new_status = request.data.get('status')
+        if new_status is None:
+            return Response({"detail": "Status is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the project's status
+        project.status = new_status
+        project.save() 
+
+        serializer = self.get_serializer(project)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+class UserProjectsView(generics.ListAPIView):
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Project.objects.filter(manager=user) | Project.objects.filter(employees=user)

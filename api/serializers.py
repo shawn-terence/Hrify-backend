@@ -1,5 +1,7 @@
 from rest_framework.serializers import ModelSerializer,SerializerMethodField
 from .models import *
+from rest_framework import serializers
+from django.utils import timezone
 
 class UserSerializer(ModelSerializer):
     class Meta:
@@ -69,7 +71,7 @@ class AttendanceSerializer(ModelSerializer):
         ]
     def get_employee_name(self, obj):
         return f"{obj.employee.first_name} {obj.employee.last_name}"
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializer(ModelSerializer):
     employees = serializers.ListField(
         child=serializers.EmailField(),  # Accepting a list of employee emails
         write_only=True,
