@@ -83,3 +83,24 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.employee.username} - {self.date} - In: {self.time_in} - Out: {self.time_out}"
+
+class Project(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    start_date = models.DateField()
+    end_date = models.DateField(blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('not_started', 'Not Started'),
+            ('in_progress', 'In Progress'),
+            ('completed', 'Completed'),
+            ('on_hold', 'On Hold'),
+        ],
+        default='not_started'
+    )
+    employees = models.ManyToManyField(User, related_name='projects', blank=True)
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='managed_projects')
+
+    def __str__(self):
+        return self.name
