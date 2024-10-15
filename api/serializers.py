@@ -54,3 +54,18 @@ class LeaveSerializer(ModelSerializer):
         if obj.date_requested:
             return obj.date_requested.date()  # Convert datetime to date
         return None
+
+class AttendanceSerializer(ModelSerializer):
+    employee_name = SerializerMethodField()
+    class Meta:
+        model = Attendance
+        fields = [
+            "id",
+            "employee",
+            "employee_name",
+            "date",
+            "time_in",
+            "time_out"
+        ]
+    def get_employee_name(self, obj):
+        return f"{obj.employee.first_name} {obj.employee.last_name}"
