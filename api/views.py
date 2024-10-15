@@ -198,7 +198,7 @@ class UpdateReportView(UpdateAPIView):
 
 
 class DeleteReportView(DestroyAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
     lookup_field='id'
     def get_queryset(self):
         return Report.objects.all()
