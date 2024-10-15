@@ -310,3 +310,29 @@ class TimeInView(APIView):
 
         serializer = AttendanceSerializer(attendance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class TimeOutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        # Automatically use today's date
+        today = timezone.now().date()
+
+        # Check if there's an existing attendance record for today
+        try:
+            attendance = Attendance.objects.get(employee=user, date=today)
+            if attendance.time_out is not None:
+                return Response({"detail": "Already recorded time out for today."}, status=status.HTTP_400_BAD_REQUEST)
+            elif attendance.time_in is None:
+                return Response({"detail": "Time in not recorded for today."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                now = timezone.now()
+                attendance.time_out = now.time()
+                attendance.save()
+        except Attendance.DoesNotExist:
+            return Response({"detail": "No time in record for today."}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AttendanceSerializer(attendance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
