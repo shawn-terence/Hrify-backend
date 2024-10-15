@@ -353,7 +353,7 @@ class EmployeeAttendanceView(ListAPIView):
 
 
 
-class CreateProjectView(generics.CreateAPIView):
+class CreateProjectView(CreateAPIView):
     serializer_class = ProjectSerializer
 
     def create(self, request, *args, **kwargs):
@@ -363,7 +363,7 @@ class CreateProjectView(generics.CreateAPIView):
         response_data = ProjectSerializer(project).data
         return Response(response_data, status=status.HTTP_201_CREATED)
 
-class GetAllProjectsView(generics.ListAPIView):
+class GetAllProjectsView(ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
@@ -391,7 +391,7 @@ class UpdateProjectView(UpdateAPIView):
 
         serializer = self.get_serializer(project)
         return Response(serializer.data, status=status.HTTP_200_OK)
-class UserProjectsView(generics.ListAPIView):
+class UserProjectsView(ListAPIView):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
 

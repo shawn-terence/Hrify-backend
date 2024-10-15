@@ -40,4 +40,8 @@ urlpatterns = [
     path('attendance/<int:employee_id>/', EmployeeAttendanceView.as_view(), name='employee-attendance'),
     path('time-in/', TimeInView.as_view(), name='time_in'),
     path('time-out/', TimeOutView.as_view(), name='time_out'),
+    path('projects/create/',CreateProjectView.as_view(),name='create'),
+    path('projects/<int:pk>/status/', UpdateProjectView.as_view(), name='update-project-status'),
+    path('projects/user/', UserProjectsView.as_view(), name='delete-project'),
+    path('projects/', GetAllProjectsView.as_view(), name='project-list'),
 ]
