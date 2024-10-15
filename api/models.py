@@ -73,3 +73,13 @@ class Leave(models.Model):
     date_requested = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return f"Leave request from {self.employee} from {self.date_from} to {self.date_to}"
+
+
+class Attendance(models.Model):
+    employee = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)  # Set default to the current date
+    time_in = models.TimeField(null=True, blank=True)
+    time_out = models.TimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.employee.username} - {self.date} - In: {self.time_in} - Out: {self.time_out}"
