@@ -284,3 +284,29 @@ class LeaveListView(ListAPIView):
     def get_queryset(self):
         # Return all leave requests
         return Leave.objects.all()
+
+class TimeInView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        # Automatically use today's date
+        today = timezone.now().date()
+
+        # Check if there's an existing attendance record for today
+        try:
+            attendance = Attendance.objects.get(employee=user, date=today)
+            if attendance.time_in is not None:
+                return Response({"detail": "Already recorded time in for today."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                now = timezone.now()
+                attendance.time_in = now.time()
+                attendance.save()
+        except Attendance.DoesNotExist:
+            now = timezone.now()
+            attendance = Attendance(employee=user, date=today, time_in=now.time())
+            attendance.save()
+
+        serializer = AttendanceSerializer(attendance)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
