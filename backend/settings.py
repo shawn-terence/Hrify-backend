@@ -17,7 +17,7 @@ SECRET_KEY = "django-insecure-laauas1uobu-=iw@t$qb(lkka1)dems9r!$r%j-!82x%)^+sj9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL="api.User"
 cloudinary.config(
     cloud_name="dvmcqb2iu",
@@ -50,6 +50,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "backend.urls"
