@@ -69,3 +69,38 @@ class AttendanceSerializer(ModelSerializer):
         ]
     def get_employee_name(self, obj):
         return f"{obj.employee.first_name} {obj.employee.last_name}"
+class ProjectSerializer(serializers.ModelSerializer):
+    employees = serializers.ListField(
+        child=serializers.EmailField(),  # Accepting a list of employee emails
+        write_only=True,
+        required=True
+    )
+    manager = serializers.EmailField(write_only=True)  # Accepting manager email
+
+    manager_email = serializers.EmailField(source='manager.email', read_only=True)
+    employee_emails = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Project
+        fields = ['id','name', 'description', 'start_date', 'end_date', 'status', 'employees', 'manager', 'manager_email', 'employee_emails']
+
+    def create(self, validated_data):
+        employee_emails = validated_data.pop('employees')
+        manager_email = validated_data.pop('manager')
+
+        # Get employees based on email
+        employees = User.objects.filter(email__in=employee_emails)
+        
+        # Get manager based on email
+        try:
+            manager = User.objects.get(email=manager_email)
+            validated_data['manager'] = manager
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError({"manager": "Manager with this email does not exist."})
+
+        project = Project.objects.create(**validated_data)
+        project.employees.set(employees)  # Assign employees based on email
+        return project
+
+    def get_employee_emails(self, obj):
+        return [employee.email for employee in obj.employees.all()]
