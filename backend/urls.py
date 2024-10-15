@@ -36,4 +36,8 @@ urlpatterns = [
     path('leave/action/<int:id>/',RequestActionView.as_view(),name='leave-action'),
     path('leave/delete/<int:pk>/', DeleteLeaveRequestView.as_view(), name='delete-leave-request'),
     path('leaves/', LeaveListView.as_view(), name='leave-list'),
+    path('attendance/', AllAttendanceView.as_view(), name='all-attendance'),
+    path('attendance/<int:employee_id>/', EmployeeAttendanceView.as_view(), name='employee-attendance'),
+    path('time-in/', TimeInView.as_view(), name='time_in'),
+    path('time-out/', TimeOutView.as_view(), name='time_out'),
 ]

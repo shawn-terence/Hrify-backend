@@ -336,3 +336,17 @@ class TimeOutView(APIView):
 
         serializer = AttendanceSerializer(attendance)
         return Response(serializer.data, status=status.HTTP_200_OK)
+class AllAttendanceView(ListAPIView):
+    queryset = Attendance.objects.all().order_by('-date')  # Get all attendance records, ordered by date
+    serializer_class = AttendanceSerializer
+    permission_classes = [IsAuthenticated] 
+
+
+class EmployeeAttendanceView(ListAPIView):
+    serializer_class = AttendanceSerializer
+    permission_classes = [IsAuthenticated]  
+
+    def get_queryset(self):
+        employee_id = self.kwargs.get('employee_id')
+        
+        return Attendance.objects.filter(employee_id=employee_id).order_by('-date')
