@@ -20,7 +20,7 @@ class IsAdminMixin:
 class CreateUserView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def create(self,request,*args,**kwargs):
         serializer=self.get_serializer(data=request.data)
@@ -167,6 +167,7 @@ class MakeReportView(CreateAPIView, UserRetrievalMixin, IsAdminMixin):
 
 
 class UserListView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         email_query = request.query_params.get('email', None)
         
@@ -182,6 +183,7 @@ class UserListView(APIView):
 
 
 class ReportCategoryListView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         # Get distinct categories from the Report model
         categories = Report.objects.values_list('category', flat=True).distinct()
@@ -190,7 +192,7 @@ class ReportCategoryListView(APIView):
         return Response(categories, status=status.HTTP_200_OK)
 
 class UpdateReportView(UpdateAPIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
     serializer_class = ReportSerializer
     lookup_field='id'
     def get_queryset(self):
@@ -354,6 +356,7 @@ class EmployeeAttendanceView(ListAPIView):
 
 
 class CreateProjectView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ProjectSerializer
 
     def create(self, request, *args, **kwargs):
@@ -364,6 +367,7 @@ class CreateProjectView(CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 class GetAllProjectsView(ListAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
