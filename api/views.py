@@ -8,6 +8,7 @@ from rest_framework.permissions import *
 from django.contrib.auth import authenticate, login
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 # Create your views here.
 class UserRetrievalMixin:
     def get_user(self, user_id):
@@ -69,46 +70,30 @@ class UserDetailsView(RetrieveAPIView,IsAdminMixin):
             return User.objects.all()
         return User.objects.filter(id=user_id)
 
-class UpdateProfile(APIView,IsAdminMixin):
-    permission_classes=[IsAuthenticated]
-    serializer_class=UserSerializer
-    def patch(self, request,):
-        user = self.request.user
+class UpdateProfile(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)  # Allow handling file uploads
+    
+    def patch(self, request):
+        user = request.user
 
-        last_name = request.data.get('last_name')
-        first_name = request.data.get('first_name')
-        email = request.data.get('email')
-        job_role = request.data.get('job_role')
-        phone_number = request.data.get('phone_number')
-        salary = request.data.get('salary')
-        department=request.data.get('department')
+        # Handle profile picture upload
+        profile_picture = request.FILES.get('profile_image')
+        if profile_picture:
+            user.profile_picture = profile_picture
 
+        # Update other fields
+        fields_to_update = ['last_name', 'first_name', 'email', 'job_role', 'phone_number', 'salary', 'department']
+        for field in fields_to_update:
+            if field in request.data:
+                setattr(user, field, request.data[field])
 
-        if self.is_admin(user):
-            if job_role is not None:
-                user.job_role = job_role
-            if salary is not None:
-                user.salary = salary
-            if department is not None:
-                user.department = department
-        else:
-            (Response({"Error:You are unauthorised"},status=status.HTTP_401_UNAUTHORIZED))
-
-
-        if last_name is not None:
-            user.last_name = last_name
-        if first_name is not None:
-            user.first_name = first_name
-        if phone_number is not None:
-            user.phone_number = phone_number
-
-        # Save the updated user
         user.save()
 
-        # Return a success response
         return Response({
             "message": "Profile updated successfully",
-        }, status=status.HTTP_200_OK)  
+            "profile_picture": user.profile_picture.url if user.profile_picture else None,
+        }, status=status.HTTP_200_OK)
 
 class UpdatePasswordView(APIView):
     permission_classes = [IsAuthenticated]
@@ -220,14 +205,14 @@ class AdminReportView(ListAPIView):
     def get_queryset(self):
         return Report.objects.all()
 
-class RequestLeaveView(ListCreateAPIView,IsAdminMixin):
-    permission_classes=[IsAuthenticated]
-    serializer_class=LeaveSerializer
+class RequestLeaveView(ListCreateAPIView, IsAdminMixin):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LeaveSerializer
 
-    def get_queryset(self,request):
-        user=request.user
-        if self.is_admin(user):
-            return Leave.objects.all()
+    def get_queryset(self):
+        user = self.request.user
+        # if self.is_admin(user):
+        #     return Leave.objects.all()
         return Leave.objects.filter(employee=user)
 
     def perform_create(self, serializer):

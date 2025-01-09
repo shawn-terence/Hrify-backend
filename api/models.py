@@ -17,13 +17,6 @@ class CustomUserManager(BaseUserManager):
         
         user.save(using=self._db)
         return user
-
-    def create_superuser(self, email, first_name, last_name, role='admin', password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        return self.create_user(email, first_name, last_name, role, password, **extra_fields)
-
 class User(AbstractBaseUser, PermissionsMixin):
     profile_picture=CloudinaryField("image",blank=True)
     email = models.EmailField(unique=True)

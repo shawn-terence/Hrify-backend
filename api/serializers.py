@@ -2,16 +2,25 @@ from rest_framework.serializers import ModelSerializer,SerializerMethodField
 from .models import *
 from rest_framework import serializers
 from django.utils import timezone
-
+import cloudinary
 class UserSerializer(ModelSerializer):
-    class Meta:
-        model=User
-        fields='__all__'
+    profile_picture_url = SerializerMethodField()
 
-        extra_kwargs={'password':{"write_only":True}}
-    def create(self,validated_data):
+    class Meta:
+        model = User
+        fields = '__all__'
+        extra_kwargs = {'password': {"write_only": True}}
+
+    def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+    def get_profile_picture_url(self, obj):
+        """
+        Generate the full Cloudinary URL for the profile picture.
+        """
+        if obj.profile_picture:
+            return f"https://res.cloudinary.com/{cloudinary.config().cloud_name}/{obj.profile_picture}"
+        return None 
 class ReportSerializer(ModelSerializer):
     employee_name=SerializerMethodField()
     class Meta:
