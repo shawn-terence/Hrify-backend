@@ -36,6 +36,7 @@ class Login(APIView):
         password=request.data.get('password')
 
         user=authenticate(request,email=email,password=password)
+        print(user)
         if user is not None:
             # Generate token for the user
             token, created = Token.objects.get_or_create(user=user)
@@ -54,6 +55,7 @@ class Logout(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request):
         token=Token.objects.get(user=request.user)
+        print(request.user)
         token.delete()
         return Response({'message':'logged out successfully'},status=status.HTTP_200_OK)
 
