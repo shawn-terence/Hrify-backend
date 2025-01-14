@@ -9,6 +9,16 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting seeding process...")
 
+        # Clear existing data
+        self.stdout.write("Deleting old data...")
+        User.objects.all().delete()
+        Leave.objects.all().delete()
+        Report.objects.all().delete()
+        Attendance.objects.all().delete()
+        Project.objects.all().delete()
+
+        self.stdout.write("Old data deleted.")
+
         # Create admins
         jane = User.objects.create_user(
             email="jane.doe@example.com",
@@ -48,7 +58,8 @@ class Command(BaseCommand):
         )
 
         employees = [john]
-        for i in range(1, 6):
+
+        for i in range(1, 21): 
             employees.append(
                 User.objects.create_user(
                     email=f"employee{i}@example.com",
@@ -63,7 +74,8 @@ class Command(BaseCommand):
                 )
             )
 
-        # Create leave requests
+        # Create leave requests for employees
+        self.stdout.write("Creating leave requests...")
         for employee in employees:
             Leave.objects.create(
                 employee=employee,
@@ -81,7 +93,8 @@ class Command(BaseCommand):
                 status="pending",
             )
 
-        # Create reports
+        # Create reports for employees
+        self.stdout.write("Creating reports...")
         for employee in employees:
             Report.objects.create(
                 employee=employee,
@@ -90,7 +103,8 @@ class Command(BaseCommand):
                 report=f"Report submitted by {employee.first_name} for the week.",
             )
 
-        # Create attendance records
+        # Create attendance records for employees
+        self.stdout.write("Creating attendance records...")
         for employee in employees:
             Attendance.objects.create(
                 employee=employee,
@@ -100,6 +114,7 @@ class Command(BaseCommand):
             )
 
         # Create projects
+        self.stdout.write("Creating projects...")
         project1 = Project.objects.create(
             name="Project Alpha",
             description="A high-priority project.",
