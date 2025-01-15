@@ -1,7 +1,6 @@
 
 from pathlib import Path
 from datetime import timedelta
-import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

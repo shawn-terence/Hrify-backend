@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from datetime import date
 from django.utils import timezone
 from cloudinary.models import CloudinaryField
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, role, password=None, **extra_fields):
         if not email:
